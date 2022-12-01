@@ -30,16 +30,14 @@ end)
 ## Part 2
 
 ```elixir
-[first, second, third | _] =
-  Kino.Input.read(input)
-  |> String.split("\n\n")
-  |> Enum.map(fn x ->
-    x
-    |> String.split("\n")
-    |> Enum.map(&String.to_integer/1)
-    |> Enum.sum()
-  end)
-  |> Enum.sort(&(&1 >= &2))
-
-Enum.sum([first, second, third])
+Kino.Input.read(input)
+|> String.split("\n\n")
+|> Enum.map(fn x ->
+  x
+  |> String.split("\n")
+  |> Enum.map(&String.to_integer/1)
+  |> Enum.sum()
+end)
+|> Enum.sort(&(&1 >= &2))
+|> (fn [first, second, third | _] -> first + second + third end).()
 ```
