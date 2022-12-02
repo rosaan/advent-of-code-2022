@@ -1,0 +1,92 @@
+# Day 2: Rock Paper Scissors
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.7.0"}
+])
+```
+
+## Puzzle Input
+
+```elixir
+input = Kino.Input.textarea("Input")
+```
+
+## Part 1
+
+```elixir
+Kino.Input.read(input)
+|> String.split("\n")
+|> Enum.map(&String.split(&1, " "))
+|> Enum.map(fn [a, b] ->
+  score =
+    cond do
+      a === "C" && b === "X" -> 6
+      a === "A" && b === "Y" -> 6
+      a === "B" && b === "Z" -> 6
+      a === "A" && b === "X" -> 3
+      a === "B" && b === "Y" -> 3
+      a === "C" && b === "Z" -> 3
+      true -> 0
+    end
+
+  type =
+    cond do
+      b === "X" -> 1
+      b === "Y" -> 2
+      b === "Z" -> 3
+      true -> 0
+    end
+
+  score + type
+end)
+|> Enum.sum()
+```
+
+## Part 2
+
+```elixir
+Kino.Input.read(input)
+|> String.split("\n")
+|> Enum.map(fn x -> String.split(x, " ") end)
+|> Enum.map(fn [a, b] ->
+  win = [
+    {"A", 2},
+    {"B", 3},
+    {"C", 1}
+  ]
+
+  draw = [
+    {"A", 1},
+    {"B", 2},
+    {"C", 3}
+  ]
+
+  lose = [
+    {"B", 1},
+    {"C", 2},
+    {"A", 3}
+  ]
+
+  cond do
+    b === "X" ->
+      Enum.reduce_while(lose, 0, fn {opt, score}, acc ->
+        if opt === a, do: {:halt, 0 + score}, else: {:cont, acc}
+      end)
+
+    b === "Y" ->
+      Enum.reduce_while(draw, 0, fn {opt, score}, acc ->
+        if opt === a, do: {:halt, 3 + score}, else: {:cont, acc}
+      end)
+
+    b === "Z" ->
+      Enum.reduce_while(win, 0, fn {opt, score}, acc ->
+        if opt === a, do: {:halt, 6 + score}, else: {:cont, acc}
+      end)
+
+    true ->
+      0
+  end
+end)
+|> Enum.sum()
+```
