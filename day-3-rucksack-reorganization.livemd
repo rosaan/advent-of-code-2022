@@ -2,8 +2,7 @@
 
 ```elixir
 Mix.install([
-  {:kino, "~> 0.7.0"},
-  {:decimal, "~> 2.0"}
+  {:kino, "~> 0.7.0"}
 ])
 ```
 
