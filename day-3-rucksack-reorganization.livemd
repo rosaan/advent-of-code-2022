@@ -1,0 +1,64 @@
+# Day 3: Rucksack Reorganization
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.7.0"},
+  {:decimal, "~> 2.0"}
+])
+```
+
+## Section
+
+```elixir
+input = Kino.Input.textarea("Input")
+```
+
+```elixir
+score =
+  ".abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  |> String.codepoints()
+  |> Enum.with_index()
+```
+
+## Part 1
+
+```elixir
+Kino.Input.read(input)
+|> String.split("\n")
+|> Enum.map(&String.codepoints/1)
+|> Enum.map(fn x ->
+  Enum.chunk_every(x, div(length(x), 2))
+  |> Enum.map(&MapSet.new/1)
+  |> Enum.reduce(fn x, acc -> MapSet.intersection(acc, x) end)
+  |> MapSet.to_list()
+end)
+|> List.flatten()
+|> Enum.map(fn x ->
+  Enum.find_value(score, fn {char, score} ->
+    if char === x, do: score
+  end)
+end)
+|> Enum.sum()
+```
+
+## Part 2
+
+```elixir
+Kino.Input.read(input)
+|> String.split("\n")
+|> Enum.map(&String.codepoints/1)
+|> Enum.chunk_every(3)
+|> Enum.map(fn chunks ->
+  chunks
+  |> Enum.map(&MapSet.new/1)
+  |> Enum.reduce(fn x, acc -> MapSet.intersection(acc, x) end)
+  |> MapSet.to_list()
+end)
+|> List.flatten()
+|> Enum.map(fn x ->
+  Enum.find_value(score, fn {char, score} ->
+    if char === x, do: score
+  end)
+end)
+|> Enum.sum()
+```
