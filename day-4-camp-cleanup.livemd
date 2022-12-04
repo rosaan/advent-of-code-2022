@@ -1,0 +1,60 @@
+# Day 4: Camp Cleanup
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.7.0"}
+])
+```
+
+## Input
+
+```elixir
+input = Kino.Input.textarea("Input")
+```
+
+## Part 1
+
+```elixir
+Kino.Input.read(input)
+|> String.split("\n")
+|> Enum.map(fn x ->
+  String.split(x, ",")
+  |> Enum.map(&String.split(&1, "-"))
+  |> Enum.map(fn [left, right] ->
+    Enum.to_list(String.to_integer(left)..String.to_integer(right))
+    |> MapSet.new()
+  end)
+end)
+|> Enum.map(fn [left, right] ->
+  MapSet.difference(left, right)
+  |> MapSet.to_list()
+  |> length() < 1 ||
+    MapSet.difference(right, left)
+    |> MapSet.to_list()
+    |> length() < 1
+end)
+|> Enum.filter(& &1)
+|> Enum.count()
+```
+
+## Part 2
+
+```elixir
+Kino.Input.read(input)
+|> String.split("\n")
+|> Enum.map(fn x ->
+  String.split(x, ",")
+  |> Enum.map(&String.split(&1, "-"))
+  |> Enum.map(fn [left, right] ->
+    Enum.to_list(String.to_integer(left)..String.to_integer(right))
+    |> MapSet.new()
+  end)
+end)
+|> Enum.map(fn [left, right] ->
+  MapSet.intersection(left, right)
+  |> MapSet.to_list()
+  |> length() > 0
+end)
+|> Enum.filter(& &1)
+|> Enum.count()
+```
