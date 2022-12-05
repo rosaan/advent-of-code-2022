@@ -32,6 +32,8 @@ crates =
   |> Enum.map(&(Tuple.to_list(&1) |> Enum.filter(fn x -> String.trim(x) !== "" end)))
 ```
 
+## Part 1
+
 ```elixir
 instruction
 |> String.split("\n", trim: true)
@@ -56,6 +58,8 @@ end)
 |> Enum.join()
 |> String.replace(~r/\[|\]/, "")
 ```
+
+## Part 2
 
 ```elixir
 instruction
