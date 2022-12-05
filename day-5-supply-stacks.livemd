@@ -1,0 +1,82 @@
+# Day 5: Supply Stacks
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.7.0"}
+])
+```
+
+## Input
+
+```elixir
+input = Kino.Input.textarea("Input")
+```
+
+## Split input and parsing crates
+
+```elixir
+[crates, instruction] =
+  Kino.Input.read(input)
+  |> String.split("\n\n")
+
+crates =
+  crates
+  |> String.split("\n", trim: true)
+  |> Enum.drop(-1)
+  |> Enum.map(fn x ->
+    String.split(x, "", trim: true)
+    |> Enum.chunk_every(3, 4, :discard)
+    |> Enum.map(&Enum.join/1)
+  end)
+  |> Enum.zip()
+  |> Enum.map(&(Tuple.to_list(&1) |> Enum.filter(fn x -> String.trim(x) !== "" end)))
+```
+
+```elixir
+instruction
+|> String.split("\n", trim: true)
+|> Enum.map(fn x ->
+  Regex.split(~r/[^0-9]+/, x, trim: true)
+  |> Enum.map(&String.to_integer/1)
+end)
+|> Enum.reduce(crates, fn [amount, from, to], acc ->
+  stack =
+    Enum.at(acc, from - 1)
+    |> Enum.take(amount)
+    |> Enum.reverse()
+
+  acc = List.replace_at(acc, from - 1, Enum.at(acc, from - 1) -- stack)
+  crates = Enum.at(acc, to - 1)
+  new_stack = stack ++ crates
+  List.replace_at(acc, to - 1, new_stack)
+end)
+|> Enum.zip()
+|> Enum.map(&Tuple.to_list(&1))
+|> List.first()
+|> Enum.join()
+|> String.replace(~r/\[|\]/, "")
+```
+
+```elixir
+instruction
+|> String.split("\n", trim: true)
+|> Enum.map(fn x ->
+  Regex.split(~r/[^0-9]+/, x, trim: true)
+  |> Enum.map(&String.to_integer/1)
+end)
+|> Enum.reduce(crates, fn [amount, from, to], acc ->
+  stack =
+    Enum.at(acc, from - 1)
+    |> Enum.take(amount)
+
+  acc = List.replace_at(acc, from - 1, Enum.at(acc, from - 1) -- stack)
+  crates = Enum.at(acc, to - 1)
+  new_stack = stack ++ crates
+  List.replace_at(acc, to - 1, new_stack)
+end)
+|> Enum.zip()
+|> Enum.map(&Tuple.to_list(&1))
+|> List.first()
+|> Enum.join()
+|> String.replace(~r/\[|\]/, "")
+```
