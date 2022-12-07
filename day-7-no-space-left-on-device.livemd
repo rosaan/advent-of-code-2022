@@ -1,0 +1,106 @@
+# Day 7: No Space Left On Device
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.7.0"}
+])
+```
+
+## Input
+
+```elixir
+input = Kino.Input.textarea("Input")
+```
+
+## Part 1
+
+```elixir
+Kino.Input.read(input)
+|> String.split("\n", trim: true)
+|> Enum.map(&String.split(&1, " ", trim: true))
+|> Enum.reduce({["root"], []}, fn command, {acc, struct} ->
+  case command do
+    ["$", "cd", "/"] ->
+      {acc, struct}
+
+    ["$", "cd", ".."] ->
+      {Enum.take(acc, Enum.count(acc) - 1), struct}
+
+    ["$", "cd", dir] ->
+      {acc ++ [dir], struct}
+
+    ["$", "ls"] ->
+      {acc, struct}
+
+    ["dir", _dir] ->
+      {acc, struct}
+
+    [file_size, _file_name] ->
+      {new_struct, _} =
+        Enum.reduce(acc, {[], []}, fn folder, {struct, temp} ->
+          {struct ++ [{temp ++ [folder], String.to_integer(file_size)}], temp ++ [folder]}
+        end)
+
+      {acc, struct ++ [new_struct]}
+  end
+end)
+|> then(fn {_, struct} ->
+  struct
+  |> List.flatten()
+  |> Enum.group_by(fn {dir, _size} -> dir end, fn {_dir, size} -> size end)
+  |> Map.values()
+  |> Enum.map(&Enum.sum/1)
+  |> Enum.filter(fn size -> size <= 100_000 end)
+  |> Enum.sum()
+end)
+```
+
+## Part 2
+
+```elixir
+Kino.Input.read(input)
+|> String.split("\n", trim: true)
+|> Enum.map(&String.split(&1, " ", trim: true))
+|> Enum.reduce({["root"], []}, fn command, {acc, struct} ->
+  case command do
+    ["$", "cd", "/"] ->
+      {acc, struct}
+
+    ["$", "cd", ".."] ->
+      {Enum.take(acc, Enum.count(acc) - 1), struct}
+
+    ["$", "cd", dir] ->
+      {acc ++ [dir], struct}
+
+    ["$", "ls"] ->
+      {acc, struct}
+
+    ["dir", _dir] ->
+      {acc, struct}
+
+    [file_size, _file_name] ->
+      {new_struct, _} =
+        Enum.reduce(acc, {[], []}, fn folder, {struct, temp} ->
+          {struct ++ [{temp ++ [folder], String.to_integer(file_size)}], temp ++ [folder]}
+        end)
+
+      {acc, struct ++ [new_struct]}
+  end
+end)
+|> then(fn {_, struct} ->
+  struct
+  |> List.flatten()
+  |> Enum.group_by(fn {dir, _size} -> dir end, fn {_dir, size} -> size end)
+  |> then(fn x ->
+    root = Map.get(x, ["root"]) |> Enum.sum()
+    unused_space = 70_000_000 - root
+    space_needed = 30_000_000 - unused_space
+
+    Map.values(x)
+    |> Enum.map(&Enum.sum/1)
+    |> Enum.reject(fn x -> x < space_needed end)
+    |> Enum.sort()
+    |> List.first()
+  end)
+end)
+```
